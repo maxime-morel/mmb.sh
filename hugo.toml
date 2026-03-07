@@ -1,6 +1,6 @@
 baseURL = 'https://mmb.sh'
 languageCode = 'fr-fr'
-title = 'Stuff - Maxime Morel-Bailly'
+title = 'Bric-à-brac - Maxime Morel-Bailly'
 theme = 'PaperMod'
 
 [pagination]
