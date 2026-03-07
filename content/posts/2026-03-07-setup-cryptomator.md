@@ -8,22 +8,39 @@ summary: "Retour d’expérience sur un stockage cloud avec chiffrement côté c
 
 Le mot **« chiffré »** dans le cloud rassure. Pourtant, dans la plupart des cas, vos documents restent techniquement lisibles par l’hébergeur.
 
-Lorsque vous stockez vos fichiers sur Google Drive ou sur un service similaire, la clé de déchiffrement n’est généralement pas entre vos mains, mais entre celles du fournisseur qui stocke vos données.
+Lorsque vous stockez vos fichiers sur Google Drive ou sur un service similaire, **la clé de déchiffrement n’est généralement pas entre vos mains**, mais entre celles du fournisseur qui stocke vos données.
 
 Résultat : si ce service doit analyser ou accéder à vos fichiers dans le cadre de son fonctionnement, de ses traitements internes ou de ses conditions d’utilisation, il en a la capacité technique. Et en cas d’accès frauduleux à votre compte, un attaquant peut lui aussi accéder directement à l’ensemble de vos documents.
 
 À partir de là, il y a plusieurs solutions :
 
 1. accepter ce fonctionnement et faire confiance au service utilisé
-2. choisir une solution cloud spécialisée, souvent payante, comme Proton
-3. se risquer à maintenir sa propre solution locale ou à domicile
-4. ou alors… allier les avantages du stockage cloud avec la sécurité d’un chiffrement local.
+2. choisir une solution cloud spécialisée, souvent payante, comme [Proton](https://proton.me/)
+3. se risquer à maintenir sa propre solution locale ou à domicile (ce que j'ai envisager)
+4. ou alors… **allier les avantages du stockage cloud avec la sécurité d’un chiffrement local**
 
-C’est précisément cette quatrième approche que j’ai testée.
+C’est précisément cette quatrième approche que j’ai testée, en suivant la logique suivante :
+
+```
+       [ Mes documents ]
+              |
+              v
+    [ Chiffrement local ]
+    avant envoi au cloud
+              |
+              v
+[ Stockage et synchronisation ]
+     Google Drive / S3
+              |
+              v
+  [ Accès multi-appareils ]
+ ````
+
+Ce n'est pas une solution de sauvegarde, mais une solution de stockage et d'accessibilité.
 
 ## Le besoin de départ
 
-J’utilisais jusqu’ici un volume **VeraCrypt** local pour stocker mes documents sensibles.
+J’utilisais jusqu’ici des volumes **VeraCrypt** locaux pour stocker mes documents sensibles.
 
 Côté sécurité / chiffrement, rien à redire. En revanche, côté usage et stockage, **les limites étaient contraignantes** :
 
@@ -31,9 +48,9 @@ Côté sécurité / chiffrement, rien à redire. En revanche, côté usage et st
 - l’accès était limité aux machines disposant de VeraCrypt
 - la consultation depuis mobile était compliquée, surtout avec des volumes de plusieurs Gb à transférer.
 
-Je cherchais donc une alternative capable de conserver un bon niveau de confidentialité, sans perdre la praticité du cloud.
+Je cherchais donc une **alternative capable de conserver un bon niveau de confidentialité, sans perdre la praticité du cloud**. Et la praticité du cloud, pour moi, c'est surtout l'accessibilité.
 
-Je souhaitais également éviter les solutions par abonnement ou fortement orientées SaaS, comme Proton, tout en restant sur un outil maintenu, fiable, sécurisé et demandant peu de maintenance.
+Je souhaitais également éviter les solutions par abonnement ou fortement orientées SaaS, comme Proton (malgré tous ses avantages), tout en restant sur un outil maintenu, fiable, sécurisé et demandant peu de maintenance.
 
 L’une des problématiques que je cherchais à résoudre était donc de **permettre une sauvegarde dans le cloud**, tout en pouvant **consulter mes données depuis mon smartphone.**
 
@@ -43,12 +60,22 @@ L’idée est simple : **les fichiers sont chiffrés localement avant d’être 
 
 Dans mon cas, j’ai retenu le montage suivant :
 
-- **Google Drive** comme stockage cloud distant, car j’utilisais déjà cet environnement, même si cette approche peut fonctionner avec d’autres fournisseurs, y compris compatibles S3 ;
+- **Google Drive** comme stockage cloud distant, car j’utilisais déjà cet environnement (et toujours utilisé pour synchroniser mes photos), même si cette approche peut fonctionner avec d’autres fournisseurs, y compris compatibles S3 ;
 - **[Cryptomator](https://cryptomator.org/)** pour le chiffrement côté client, compatible avec Windows, macOS, Linux et mobile ;
 - **rclone** pour la synchronisation sous Kubuntu ; sur Windows ou macOS, l’application Google Drive peut être utilisée plus simplement ;
 - l’application mobile **Cryptomator** pour l’accès ponctuel depuis smartphone.
 
 Ce modèle permet de garder les avantages du cloud : accessibilité, souplesse, multi-appareils, tout en évitant de confier le contenu lisible des documents au service d’hébergement.
+
+## Les autres solutions envisagées
+
+Avant d’arriver à ce montage, j’ai exploré plusieurs pistes. Rester sur **VeraCrypt** était l’option la plus évidente. Le problème n’était pas le chiffrement lui-même, mais le format conteneur : pratique pour de l’archive ou du stockage local, beaucoup moins pour de la synchronisation régulière et un accès mobile.
+
+J’ai aussi regardé les **solutions spécialisées** comme Proton. Elles sont intéressantes, mais impliquent un abonnement et une dépendance plus forte à un service unique, ce que je voulais éviter. L'avantage de Cryptomator est que je peux changer sans contrainte le stockage distant.
+
+L’**auto-hébergement** faisait également partie des options possibles, tel que mettre en place un NAS maison avec une solution sécurisé par design, mais cela nécessite un investissement initial relativement important ainsi que le temps de mise en place que je n'avais pas.
+
+C’est pour cela que j’ai retenu une approche intermédiaire : garder la praticité du cloud, mais ajouter moi-même la couche de chiffrement côté client.
 
 ## Pourquoi Cryptomator ?
 
@@ -64,6 +91,8 @@ En pratique, Cryptomator apporte plusieurs bénéfices :
 - l’accès mobile reste possible
 - le stockage distant ne voit que des fichiers déjà chiffrés
 - on évite les limites de sauvegarde liées à un conteneur unique
+
+Leur page [for individuals](https://cryptomator.org/for-individuals/) décrit assez clairement les fonctionnalités principales de la solution : **chiffrement côté client avant l’envoi**, compatibilité avec les services cloud existants, support **Windows / macOS / Linux / Android / iOS**, simplicité d’utilisation, code **open source**, et chiffrement pensé pour un usage quotidien sans connaissances techniques particulières. La FAQ rappelle aussi que les fichiers sont chiffrés individuellement, que les noms de fichiers sont protégés, et que l’outil n’est pas limité à un fournisseur cloud unique.
 
 ## Description du setup
 
@@ -166,6 +195,12 @@ On améliore donc fortement la confidentialité du contenu, mais on ne devient p
 Une synchronisation cloud n’est pas un backup au sens strict. Si un fichier est supprimé ou corrompu localement, cette erreur peut aussi être répliquée.
 Il faut donc compléter le dispositif par une vraie stratégie de sauvegarde indépendante. Je ne me suis pas encore penché sérieusement sur ce sujet. Pour le moment, mon ancien volume VeraCrypt local me sert encore de sauvegarde complémentaire.
 
+**5. Une dépendance existe aux évolutions logicielles**
+
+Cette approche reste dépendante de l’évolution de plusieurs outils : Cryptomator, rclone, l’application mobile, ainsi que du service cloud utilisé.
+
+Comme toujours, cela implique un certain niveau de dépendance technique dans le temps. Pour autant, je n’ai constaté à ce stade aucun problème particulier de fiabilité. Et le fait que les briques principales soient **open source** réduit en partie le risque : le fonctionnement est plus transparent et la dépendance à un acteur unique est plus limitée.
+
 # Mon avis après test
 
 Ce montage n’est pas magique, mais je le trouve très cohérent pour obtenir un bon compromis autour d’un stockage cloud plus sécurisé.
@@ -192,3 +227,5 @@ Si vous stockez aujourd’hui des documents sensibles dans un cloud classique en
 Dans mon cas, ajouter une couche de chiffrement côté client m’a permis de conserver la praticité du cloud, sans lui abandonner l’accès direct au contenu de mes fichiers.
 
 Ce n’est pas une solution parfaite. Elle demande un peu de méthode, un peu de discipline, et une bonne compréhension de ce qu’est réellement une synchronisation. Mais pour mon besoin, c’est aujourd’hui l’un des meilleurs compromis entre **confidentialité, simplicité et coût**.
+
+Ce retour d’expérience vaut surtout pour mon besoin précis et dans la limite des recherches que j’ai menées jusqu’à présent.
