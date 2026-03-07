@@ -1,0 +1,28 @@
+baseURL = 'https://mmb.sh'
+languageCode = 'fr-fr'
+title = 'Stuff - Maxime Morel-Bailly'
+theme = 'PaperMod'
+
+[pagination]
+  pagerSize = 10
+
+[params]
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+
+[[menu.main]]
+  identifier = "posts"
+  name = "Articles"
+  url = "/posts/"
+  weight = 10
+
+[[menu.main]]
+  identifier = "about"
+  name = "À propos"
+  url = "/about/"
+  weight = 20
