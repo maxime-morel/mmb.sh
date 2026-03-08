@@ -1,9 +1,35 @@
 ---
 title: "De VeraCrypt à Cryptomator : vers un stockage chiffré dans le cloud"
 date: 2026-03-07
+lastmod: 2026-03-08
 draft: false
-tags: ["cloud", "cryptographie", "linux", "privacy", "cryptomator", "rclone", "kubuntu"]
+
+slug: "cryptomator-stockage-chiffre-cloud"
+aliases:
+  - "/posts/2026-03-07-setup-cryptomator/"
+
+description: "Pourquoi j’ai remplacé VeraCrypt par Cryptomator pour garder un stockage cloud pratique tout en chiffrant localement mes fichiers sous Linux."
 summary: "Retour d’expérience sur un stockage cloud avec chiffrement côté client avec Cryptomator, avec une mise en place détaillée sous Linux et Kubuntu."
+
+author:
+  - "Maxime Morel-Bailly"
+
+tags:
+  - "cloud"
+  - "cryptographie"
+  - "linux"
+  - "privacy"
+  - "cryptomator"
+  - "rclone"
+  - "kubuntu"
+
+keywords:
+  - "cryptomator"
+  - "veracrypt"
+  - "google drive"
+  - "stockage chiffré"
+  - "chiffrement côté client"
+  - "rclone bisync"
 ---
 
 Le mot **« chiffré »** dans le cloud rassure. Pourtant, dans la plupart des cas, vos documents restent techniquement lisibles par l’hébergeur.

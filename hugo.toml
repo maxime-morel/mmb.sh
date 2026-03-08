@@ -1,28 +1,51 @@
-baseURL = 'https://mmb.sh'
+baseURL = 'https://mmb.sh/'
 languageCode = 'fr-fr'
+defaultContentLanguage = 'fr'
 title = 'Bric-à-brac - Maxime Morel-Bailly'
 theme = 'PaperMod'
+enableGitInfo = true
 
 [pagination]
   pagerSize = 10
 
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'
+  keyword = 'keywords'
+
 [params]
-  defaultTheme = "auto"
+  description = 'Articles techniques sur la cybersécurité, Linux, l’infrastructure et des retours d’expérience concrets.'
+  author = 'Maxime Morel-Bailly'
+  keywords = ['cybersécurité', 'linux', 'infrastructure', 'cloud', 'privacy', 'hugo']
+  defaultTheme = 'auto'
   ShowReadingTime = true
   ShowShareButtons = false
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
   ShowCodeCopyButtons = true
   ShowToc = true
+  images = ['/images/site/og-default.png']
+
+  [params.homeInfoParams]
+    Title = 'Bric-à-brac'
+    Content = 'Cybersécurité, Linux, infrastructure, cloud et retours d’expérience concrets.'
+
+  [[params.socialIcons]]
+    name = 'github'
+    url = 'https://github.com/maxime-morel'
+
+  [[params.socialIcons]]
+    name = 'linkedin'
+    url = 'https://www.linkedin.com/in/maximemorelbailly'
 
 [[menu.main]]
-  identifier = "posts"
-  name = "Articles"
-  url = "/posts/"
+  identifier = 'posts'
+  name = 'Articles'
+  url = '/posts/'
   weight = 10
 
 [[menu.main]]
-  identifier = "about"
-  name = "À propos"
-  url = "/about/"
+  identifier = 'about'
+  name = 'À propos'
+  url = '/about/'
   weight = 20
