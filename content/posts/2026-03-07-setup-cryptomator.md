@@ -813,7 +813,7 @@ Description=Run Cryptomator sync agent every minute
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=1min
+OnUnitInactiveSec=1min
 AccuracySec=10s
 Persistent=true
 
@@ -850,6 +850,18 @@ systemctl --user daemon-reload
 systemctl --user enable --now cryptomator-vault-watch.service
 systemctl --user enable --now cryptomator-sync-agent.timer
 ```
+
+### Activer les services utilisateur au démarrage
+
+Comme cette mise en place repose sur des unités `systemd --user`, j'ai du dans mon cas activer le linger pour que les timers et services utilisateur puissent continuer à fonctionner après redémarrage, sans dépendre strictement de l’ouverture de la session graphique.
+
+```bash
+sudo loginctl enable-linger "$USER"
+loginctl show-user "$USER" | grep Linger
+# doit afficher "yes"
+```
+
+Cette configuration est persistante.
 
 ### Déclenchement manuel
 
