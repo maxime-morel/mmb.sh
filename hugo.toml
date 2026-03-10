@@ -37,14 +37,14 @@ enableGitInfo = true
 [languages.fr]
   languageCode = 'fr-FR'
   languageName = 'Français'
-  title = 'Bric-à-brac - Maxime Morel-Bailly'
+  title = 'Le Lab, par Maxime'
   weight = 1
 
   [languages.fr.params]
     description = 'Articles techniques sur la cybersécurité, Linux, l’infrastructure et des retours d’expérience concrets.'
 
     [languages.fr.params.homeInfoParams]
-      Title = 'Bric-à-brac'
+      Title = 'Le Lab'
       Content = 'Cybersécurité, Linux, infrastructure, cloud et retours d’expérience concrets.'
 
   [[languages.fr.menu.main]]
@@ -62,14 +62,14 @@ enableGitInfo = true
 [languages.en]
   languageCode = 'en-US'
   languageName = 'English'
-  title = 'Odds and Ends - Maxime Morel-Bailly'
+  title = 'The Lab, by Maxime'
   weight = 2
 
   [languages.en.params]
     description = 'Technical articles about cybersecurity, Linux, infrastructure, and practical field notes.'
 
     [languages.en.params.homeInfoParams]
-      Title = 'Odds and Ends'
+      Title = 'The Lab'
       Content = 'Cybersecurity, Linux, infrastructure, cloud, and practical technical notes.'
 
   [[languages.en.menu.main]]
