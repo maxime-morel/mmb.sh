@@ -326,7 +326,7 @@ Once this first transfer is complete, I'll use `rclone bisync` for the next step
 First step: perform a `dry-run`.
 
 ```bash
-rclone bisync /home/<utilisateur>/cryptomator/Documents gdrive:Cryptomator/Documents \
+rclone bisync /home/<username>/cryptomator/Documents gdrive:Cryptomator/Documents \
   --resync \
   --resync-mode path1 \
   --check-access \
@@ -339,7 +339,7 @@ rclone bisync /home/<utilisateur>/cryptomator/Documents gdrive:Cryptomator/Docum
 If the result is consistent, launch the actual initialization:
 
 ```bash
-rclone bisync /home/<utilisateur>/cryptomator/Documents gdrive:Cryptomator/Documents \
+rclone bisync /home/<username>/cryptomator/Documents gdrive:Cryptomator/Documents \
   --resync \
   --resync-mode path1 \
   --check-access \
@@ -364,9 +364,9 @@ mkdir -p ~/.config/systemd/user
 In the scripts below, adapt at least these variables:
 
 ```bash
-LOCAL="/home/<utilisateur>/cryptomator/Documents"
+LOCAL="/home/<username>/cryptomator/Documents"
 REMOTE="gdrive:Cryptomator/Documents"
-MOUNTPOINT_PATH="/home/<utilisateur>/.local/share/Cryptomator/mnt/Documents"
+MOUNTPOINT_PATH="/home/<username>/.local/share/Cryptomator/mnt/Documents"
 ```
 
 If you keep a different vault name, a different user, or a different remote, you must modify these three paths.
@@ -387,8 +387,8 @@ File:
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# À adapter
-LOCAL="/home/<utilisateur>/cryptomator/Documents"
+# Adjust to your environment
+LOCAL="/home/<username>/cryptomator/Documents"
 REMOTE="gdrive:Cryptomator/Documents"
 
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/cryptomator-sync"
@@ -414,7 +414,7 @@ fi
 touch "$SYNC_RUNNING_FILE"
 trap 'rm -f "$SYNC_RUNNING_FILE"' EXIT
 
-# Une sync démarre : l'ancien debounce n'a plus de sens.
+# A sync is starting: previous debounce state is no longer relevant.
 rm -f "$CHANGE_DEBOUNCE_UNTIL"
 
 if [ -f "$NEXT_SYNC_REASON" ]; then
@@ -503,9 +503,9 @@ File:
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# À adapter
-LOCAL="/home/<utilisateur>/cryptomator/Documents"
-MOUNTPOINT_PATH="/home/<utilisateur>/.local/share/Cryptomator/mnt/Documents"
+# Adjust to your environment
+LOCAL="/home/<username>/cryptomator/Documents"
+MOUNTPOINT_PATH="/home/<username>/.local/share/Cryptomator/mnt/Documents"
 
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/cryptomator-sync"
 LOG_FILE="$STATE_DIR/agent.log"
@@ -591,9 +591,9 @@ run_sync() {
 
 age_since_last_sync=$(( now - last_sync_success ))
 
-# Retour d'activité : ici on utilise l'état lock/unlock de Plasma.
-# Si cela ne fonctionne pas sur votre session, commentez ce bloc
-# ou adaptez la fonction get_lock_state().
+# Return-from-inactivity detection: this uses Plasma lock/unlock state.
+# If this does not work in your session, comment this block
+# or adapt the get_lock_state() function.
 get_lock_state() {
   if command -v qdbus >/dev/null 2>&1; then
     qdbus org.freedesktop.ScreenSaver /ScreenSaver org.freedesktop.ScreenSaver.GetActive 2>/dev/null && return 0
@@ -636,7 +636,7 @@ else
   fi
 fi
 
-# Détection d'ouverture du vault déchiffré.
+# Detect opening of the decrypted vault.
 vault_open=0
 if mountpoint -q "$MOUNTPOINT_PATH" 2>/dev/null; then
   vault_open=1
@@ -653,7 +653,7 @@ elif [ "$vault_open" -eq 0 ] && [ "$last_vault_open_state" -ne 0 ]; then
   log "vault closed"
 fi
 
-# Rerun après une modif arrivée pendant la sync précédente.
+# Rerun after a change detected during the previous sync.
 if [ -f "$PENDING_FILE" ] && [ "$sync_running" -eq 0 ]; then
   if [ "$age_since_last_sync" -gt 120 ]; then
     rm -f "$PENDING_FILE"
@@ -663,7 +663,7 @@ if [ -f "$PENDING_FILE" ] && [ "$sync_running" -eq 0 ]; then
   fi
 fi
 
-# Sync différée après 5 minutes de calme.
+# Delayed sync after 5 minutes of quiet period.
 if [ "$last_local_change" -gt 0 ] && [ "$debounce_until" -gt 0 ]; then
   if [ "$now" -ge "$debounce_until" ]; then
     if [ "$age_since_last_sync" -gt 300 ]; then
@@ -673,7 +673,7 @@ if [ "$last_local_change" -gt 0 ] && [ "$debounce_until" -gt 0 ]; then
   fi
 fi
 
-# Filet périodique.
+# Periodic safety run.
 if [ "$age_since_last_sync" -gt 7200 ]; then
   run_sync "periodic-2h"
 fi
@@ -700,8 +700,8 @@ File:
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# À adapter
-LOCAL="/home/<utilisateur>/cryptomator/Documents"
+# Adjust to your environment
+LOCAL="/home/<username>/cryptomator/Documents"
 
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/cryptomator-sync"
 LOG_FILE="$STATE_DIR/watch.log"
@@ -743,14 +743,14 @@ inotifywait -m -r \
         ;;
     esac
 
-    # Ignorer le bruit technique de Cryptomator à l'ouverture du vault.
+    # Ignore technical Cryptomator noise when opening the vault.
     if [[ "$path" == "$LOCAL/c" ]] || [[ "$path" == "$LOCAL/c/write-access"* ]]; then
       log "ignored cryptomator access-check path=$path evt=$evt"
       continue
     fi
 
-    # Si une sync est en cours, on ne programme pas de local-change.
-    # On demande juste un rerun à la fin.
+    # If a sync is already running, do not schedule a local-change run.
+    # Just request a rerun at the end.
     if [ -f "$SYNC_RUNNING_FILE" ]; then
       touch "$PENDING_FILE"
       log "change during sync path=$path evt=$evt -> pending only"
@@ -812,7 +812,7 @@ ExecStart=%h/.local/bin/cryptomator-sync-agent.sh
 
 ### Agent Timer
 
-Fichier :
+File:
 
 ```text
 ~/.config/systemd/user/cryptomator-sync-agent.timer
@@ -869,7 +869,7 @@ Since this setup relies on `systemd --user` units, I had to enable the linger in
 ```bash
 sudo loginctl enable-linger "$USER"
 loginctl show-user "$USER" | grep Linger
-# doit afficher "yes"
+# should display "yes"
 ```
 
 This configuration is persistent.
@@ -882,7 +882,7 @@ For example, add the following to `~/.bashrc`:
 alias sync-cryptomator='systemctl --user start cryptomator-bisync.service'
 ```
 
-Rechargez ensuite votre shell :
+Reload your shell:
 
 ```bash
 source ~/.bashrc
@@ -989,14 +989,6 @@ It allows you to:
 - and regain reasonable mobile access to sensitive documents.
 
 VeraCrypt remains excellent for archiving, static storage, or offline volumes. However, I hadn't found a truly practical model with VeraCrypt to meet my cloud backup and mobile access needs.
-
-# Conclusion
-
-If you're currently storing sensitive documents in a traditional cloud service, relying solely on the word "encrypted," it's probably worth taking a closer look at who actually holds the keys.
-
-In my case, adding a client-side encryption layer allowed me to maintain the convenience of the cloud without giving it direct access to my file content.
-
-It's not a perfect solution. It requires a bit of method, a bit of discipline, and a good understanding of what
 
 # Conclusion
 
