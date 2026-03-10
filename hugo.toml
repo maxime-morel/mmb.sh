@@ -1,6 +1,7 @@
 baseURL = 'https://mmb.sh/'
 languageCode = 'fr-fr'
 defaultContentLanguage = 'fr'
+defaultContentLanguageInSubdir = false
 title = 'Bric-à-brac - Maxime Morel-Bailly'
 theme = 'PaperMod'
 enableGitInfo = true
@@ -14,7 +15,6 @@ enableGitInfo = true
   keyword = 'keywords'
 
 [params]
-  description = 'Articles techniques sur la cybersécurité, Linux, l’infrastructure et des retours d’expérience concrets.'
   author = 'Maxime Morel-Bailly'
   keywords = ['cybersécurité', 'linux', 'infrastructure', 'cloud', 'privacy', 'hugo']
   defaultTheme = 'auto'
@@ -26,10 +26,6 @@ enableGitInfo = true
   ShowToc = true
   images = ['/images/site/og-default.png']
 
-  [params.homeInfoParams]
-    Title = 'Bric-à-brac'
-    Content = 'Cybersécurité, Linux, infrastructure, cloud et retours d’expérience concrets.'
-
   [[params.socialIcons]]
     name = 'github'
     url = 'https://github.com/maxime-morel'
@@ -38,14 +34,52 @@ enableGitInfo = true
     name = 'linkedin'
     url = 'https://www.linkedin.com/in/maximemorelbailly'
 
-[[menu.main]]
-  identifier = 'posts'
-  name = 'Articles'
-  url = '/posts/'
-  weight = 10
+[languages.fr]
+  languageCode = 'fr-FR'
+  languageName = 'Français'
+  title = 'Bric-à-brac - Maxime Morel-Bailly'
+  weight = 1
 
-[[menu.main]]
-  identifier = 'about'
-  name = 'À propos'
-  url = '/about/'
-  weight = 20
+  [languages.fr.params]
+    description = 'Articles techniques sur la cybersécurité, Linux, l’infrastructure et des retours d’expérience concrets.'
+
+    [languages.fr.params.homeInfoParams]
+      Title = 'Bric-à-brac'
+      Content = 'Cybersécurité, Linux, infrastructure, cloud et retours d’expérience concrets.'
+
+  [[languages.fr.menu.main]]
+    identifier = 'posts'
+    name = 'Articles'
+    url = '/posts/'
+    weight = 10
+
+  [[languages.fr.menu.main]]
+    identifier = 'about'
+    name = 'À propos'
+    url = '/about/'
+    weight = 20
+
+[languages.en]
+  languageCode = 'en-US'
+  languageName = 'English'
+  title = 'Odds and Ends - Maxime Morel-Bailly'
+  weight = 2
+
+  [languages.en.params]
+    description = 'Technical articles about cybersecurity, Linux, infrastructure, and practical field notes.'
+
+    [languages.en.params.homeInfoParams]
+      Title = 'Odds and Ends'
+      Content = 'Cybersecurity, Linux, infrastructure, cloud, and practical technical notes.'
+
+  [[languages.en.menu.main]]
+    identifier = 'posts'
+    name = 'Posts'
+    url = '/en/posts/'
+    weight = 10
+
+  [[languages.en.menu.main]]
+    identifier = 'about'
+    name = 'About'
+    url = '/en/about/'
+    weight = 20
