@@ -61,7 +61,14 @@ Je ne vois pas WireGuard ici comme une simple option de confort. C'est un compos
 
 Si vous voulez aller directement à l'implémentation, sautez à [l'étape 1](#etape-1-creer-linterface-wireguard-dans-luci).
 
-Ce guide vise un cas de recherche très concret : **OpenWrt + WireGuard derrière box FAI + Android + DDNS + full tunnel**.
+## Résumé de configuration
+
+- Sous-réseau LAN : `192.168.10.0/24`
+- Sous-réseau WireGuard : `10.203.0.0/24`
+- IP WireGuard du routeur : `10.203.0.1`
+- IP WireGuard Android : `10.203.0.2`
+- Port UDP WireGuard : `32541`
+- Exemple de hostname DDNS : `myprivatevpnXYZ.mmb.sh`
 
 ## Ce que fait ce setup
 
@@ -337,12 +344,7 @@ Timer settings :
 
 Sauvegardez puis démarrez le service.
 
-Note de compatibilité : selon version `ddns-scripts-cloudflare`, certains builds utilisent encore le mode legacy (`X-Auth-Email` / `X-Auth-Key`). Dans ce cas :
-
-- `Username = email Cloudflare`
-- `Password = Global API Key`
-- `Domain = mmb.sh`
-- `Lookup Hostname = myprivatevpnXYZ.mmb.sh`
+Si l'authentification Cloudflare DDNS échoue, voir la section dépannage (modes Bearer et legacy).
 
 ### 5.5 Valider
 
@@ -362,6 +364,11 @@ Règles :
 - une paire de clés par appareil
 - une IP tunnel par appareil
 - jamais de profil partagé
+
+Distinction importante :
+
+- Côté **peer OpenWrt**, `Allowed IPs` sert à associer l'IP tunnel au bon client (par exemple `10.203.0.2/32`).
+- Côté **profil client**, `AllowedIPs` définit quelles destinations passent dans le tunnel (full tunnel vs LAN only).
 
 ### Peer Android
 
@@ -391,7 +398,9 @@ Le profil généré doit inclure au minimum :
 
 - `Address = 10.203.0.2/32`
 - `Endpoint = <votre-ddns>:<votre-port-wireguard>`
-- `AllowedIPs = 0.0.0.0/0, ::/0` pour full tunnel
+- `AllowedIPs = 0.0.0.0/0` pour le full tunnel IPv4
+- optionnel : ajouter `::/0` uniquement si IPv6 est réellement routé dans le tunnel
+- `DNS = <resolver accessible via le tunnel>` (par exemple `192.168.10.1` si les clients joignent le DNS LAN du routeur, ou `10.203.0.1` si vous exposez explicitement le DNS sur l'interface WireGuard)
 - optionnel : `PersistentKeepalive = 25`
 
 Testez en 4G/5G (pas sur le Wi-Fi de la maison) et vérifiez que l'IP publique vue côté client est celle de votre domicile.
@@ -481,6 +490,13 @@ Vérifiez :
 - accessibilité du DNS via tunnel
 - éventuel override DNS par Android
 
+### Incompatibilité d'authentification Cloudflare DDNS
+
+Si DDNS échoue côté Cloudflare, les logs indiquent le mode attendu :
+
+- si les logs montrent `Authorization: Bearer ...`, utiliser le format token attendu par votre implémentation DDNS OpenWrt (dans mon cas : `Username = Bearer`, `Password = API Token`, `Domain = record@zone`)
+- si les logs montrent `X-Auth-Email` et `X-Auth-Key`, utiliser `Username = email Cloudflare`, `Password = Global API Key`, `Domain = zone`
+
 ### Fonctionne en Wi-Fi mais pas en data mobile
 
 Testez :
@@ -494,21 +510,6 @@ Testez :
 `::/0` dans `AllowedIPs` est pertinent uniquement si vous voulez réellement faire passer IPv6 dans le tunnel.
 
 Si votre setup IPv6 n'est pas complet, mieux vaut retirer `::/0` plutôt que laisser un comportement partiel ambigu.
-
-## Full tunnel : utile, mais pas gratuit
-
-Avantages :
-
-- accès à des ressources filtrées sur IP maison
-- cohérence d'usage en déplacement
-- meilleure sécurité sur réseaux non fiables
-
-Limites :
-
-- dépendance à la connexion maison
-- upload domestique limitant
-- panne électrique maison = plus de sortie Internet
-- intérêt variable selon usages
 
 ## Bonnes pratiques sécurité
 

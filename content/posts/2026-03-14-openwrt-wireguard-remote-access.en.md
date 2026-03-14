@@ -49,7 +49,7 @@ For this, **WireGuard** is a strong fit. It is easier to understand and maintain
 
 This article is based on my setup:
 
-- a **Linksys MR8300** with **OpenWrt 24.10.5** (last known supported version)
+- a **Linksys MR8300** tested with **OpenWrt 24.10.5**
 - the OpenWrt router is placed behind a Huawei **ISP router**
 - remote access mainly from **Android**
 
@@ -58,11 +58,18 @@ The goal is to build a VPN setup that provides both:
 - access to the **LAN behind OpenWrt**
 - as well as **full Internet routing** through the house (`AllowedIPs = 0.0.0.0/0` on the client side)
 
-I do not see WireGuard here as a comfort feature. It is a remote access and administration component, so it deserves a minimum level of network and security discipline.
+In this setup, WireGuard is not just a convenience feature. It provides remote access into the home network and should be treated accordingly.
 
 If you only need the implementation steps, jump to [Step 1](#step-1-create-the-wireguard-interface-in-luci).
 
-This guide is written for the exact query pattern most people have in practice: **OpenWrt WireGuard behind ISP router + Android client + DDNS + full-tunnel Internet**.
+## Configuration summary
+
+- LAN subnet: `192.168.10.0/24`
+- WireGuard subnet: `10.203.0.0/24`
+- Router WireGuard IP: `10.203.0.1`
+- Android WireGuard IP: `10.203.0.2`
+- WireGuard UDP port: `32541`
+- DDNS hostname example: `myprivatevpnXYZ.mmb.sh`
 
 ## What this setup does
 
@@ -351,7 +358,7 @@ Recommended prerequisites:
 
 On my ISP router, I configured port mapping with:
 
-- **Type**: user-defined (or custom equivalent). In my case the port selection was not available with user-defined, I had to select another random type.
+- **Type**: user-defined (or custom equivalent). On some ISP router UIs, port fields may only become editable under a specific profile; if so, select the profile that allows setting protocol and ports explicitly.
 - **Enable Port Mapping**: enabled
 - **Internal Host**: OpenWrt WAN IP (example: `192.168.3.8`)
 - **Protocol**: `UDP`
@@ -452,17 +459,7 @@ In the same DDNS service popup:
 
 Then save and start the service.
 
-Compatibility note: OpenWrt `ddns-scripts-cloudflare` behavior depends on version.
-The setup above (`Username = Bearer` with `record@zone`) is the one that worked in my environment.
-
-If logs show headers `X-Auth-Email` and `X-Auth-Key`, your build expects **legacy auth**:
-
-- `Username = Cloudflare account email`
-- `Password = Cloudflare Global API Key`
-- `Domain = zone` (example: `mmb.sh`)
-- `Lookup Hostname = full record` (example: `myprivatevpnXYZ.mmb.sh`)
-
-If logs show `Authorization: Bearer ...`, keep the token-based setup.
+If Cloudflare DDNS authentication fails, jump to troubleshooting where both auth formats are summarized.
 
 ### 5.5 Validate updates
 
@@ -496,6 +493,11 @@ I strongly recommend:
 - **one peer per device**
 - **never sharing one profile** across multiple devices
 
+Important distinction:
+
+- On **OpenWrt peer settings**, `Allowed IPs` identifies which tunnel IP belongs to that peer (for example `10.203.0.2/32`).
+- On the **client profile**, `AllowedIPs` defines which destination traffic goes through the tunnel (for example full tunnel vs LAN-only).
+
 ### Android peer
 
 Simple example:
@@ -528,14 +530,16 @@ The generated profile should include:
 
 - `Address = 10.203.0.2/32`
 - `Endpoint = <your-ddns-hostname>:<your-wireguard-port>`
-- `AllowedIPs = 0.0.0.0/0, ::/0` for full tunnel
+- `AllowedIPs = 0.0.0.0/0` for IPv4 full tunnel
+- optional `AllowedIPs` addition: `::/0` only if IPv6 is actually routed through your tunnel
+- `DNS = <resolver reachable through the tunnel>` (for example `192.168.10.1` if clients can reach router LAN DNS, or `10.203.0.1` if you explicitly expose DNS on the WireGuard interface)
 - optional `PersistentKeepalive = 25` for mobile NAT stability
 
-In a full-tunnel case, `AllowedIPs = 0.0.0.0/0, ::/0` sends Internet traffic into the tunnel.
+In a full-tunnel case, `AllowedIPs = 0.0.0.0/0` sends IPv4 Internet traffic into the tunnel.
 
 On Android, enable the tunnel. Then, while disconnected from your home Wi-Fi (for example on mobile data), verify that your public IP matches your home public IP.
 
-### My Android caution point
+### Android-specific considerations
 
 If I keep a permanent full tunnel enabled, I want to watch:
 
@@ -622,6 +626,13 @@ If websites open inconsistently or DNS does not follow the tunnel, I would verif
 - whether the chosen DNS server is reachable through the tunnel
 - whether Android is overriding DNS behavior
 
+### Cloudflare DDNS authentication mismatch
+
+If DDNS fails at Cloudflare authentication, check logs to identify the expected mode:
+
+- If logs show `Authorization: Bearer ...`, use the token-based format expected by your installed DDNS provider implementation (in my case: `Username = Bearer`, `Password = API Token`, `Domain = record@zone`).
+- If logs show `X-Auth-Email` and `X-Auth-Key`, use legacy mode (`Username = Cloudflare email`, `Password = Global API Key`, `Domain = zone`).
+
 ### The tunnel works from Wi-Fi but not from mobile data
 
 That usually points to NAT behavior, filtering, or a stale endpoint path. In that case I would test:
@@ -638,24 +649,6 @@ In practice, I should decide this explicitly:
 
 - if my setup supports IPv6 end to end, I can keep `::/0`
 - if my home network does not properly route IPv6 through WireGuard, I should remove `::/0` rather than pretend IPv6 is covered
-
-## Full-tunnel routing: useful, but not free
-
-Sending all Internet traffic through the house is useful in several cases:
-
-- access to resources that only accept the home public IP
-- continuity between internal and external services
-- safer usage on untrusted networks
-- more consistent browsing when traveling
-
-But there are limits:
-
-- everything now depends on the home Internet connection
-- the home uplink becomes a bottleneck
-- a power outage at home also kills that Internet exit point
-- some use cases gain little from being tunneled all the time
-
-For a smartphone, the best trade-off is not always “full tunnel all the time”.
 
 ## Security practices I would recommend
 
@@ -706,5 +699,3 @@ Running WireGuard on OpenWrt behind an ISP router is entirely realistic, includi
 For my use case, this is cleaner than exposing internal services one by one, and more flexible than relying on a handful of published ports.
 
 Before calling this setup finished, I would validate four things from outside the home network: the real handshake path, LAN reachability, full-tunnel Internet routing, and whether the VPN exposes more administrative surface than intended.
-
-My next step is to lock down the final hardening choices so this draft becomes a publishable field report rather than just a working template.
