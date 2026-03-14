@@ -5,6 +5,16 @@ defaultContentLanguageInSubdir = false
 title = 'Bric-à-brac - Maxime Morel-Bailly'
 theme = 'PaperMod'
 enableGitInfo = true
+enableRobotsTXT = true
+
+[services]
+  [services.googleAnalytics]
+    id = 'G-F97LXLKTJC'
+
+[sitemap]
+  changefreq = 'weekly'
+  priority = 0.5
+  filename = 'sitemap.xml'
 
 [pagination]
   pagerSize = 10
