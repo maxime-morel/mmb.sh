@@ -25,13 +25,25 @@
     box-shadow: none;
 }
 
-.lang-switch .active-lang,
+.lang-switch a,
+.lang-switch .active-lang {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.post-meta .i18n_list li a,
 .post-meta .i18n_list .active-lang {
-    font-weight: 700;
+    font-weight: 400;
+}
+
+.lang-switch .active-lang {
     opacity: 1;
-    text-decoration: underline;
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 2px;
+    color: var(--secondary) !important;
+}
+
+.post-meta .i18n_list .active-lang {
+    opacity: 1;
+    color: var(--secondary) !important;
 }
 
 @media (max-width: 768px) {
