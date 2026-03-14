@@ -1,0 +1,24 @@
+{{- if .IsTranslated -}}
+{{- $page := . -}}
+{{- if (ne .Layout "search") -}}
+{{- if or .Params.author site.Params.author (.Param "ShowReadingTime") (not .Date.IsZero) -}}&nbsp;|&nbsp;{{- end -}}
+{{- end -}}
+<span>{{- i18n "translations" | default "Translations" }}:</span>
+<ul class="i18n_list">
+    {{- $currLang := $page.Lang -}}
+    {{- range $i, $language := site.Languages -}}
+    {{- if gt $i 0 }}<li class="lang-sep">-</li>{{- end -}}
+    {{- $code := $language.Lang -}}
+    {{- $name := cond (and site.Params.displayFullLangName $language.LanguageName) ($language.LanguageName | emojify) ($code | title) -}}
+    {{- if eq $currLang $code -}}
+    <li><span class="active-lang" aria-current="true">{{- $name -}}</span></li>
+    {{- else -}}
+    {{- $targetList := first 1 (where $page.AllTranslations "Lang" $code) -}}
+    {{- if gt (len $targetList) 0 -}}
+    {{- $target := index $targetList 0 -}}
+    <li><a href="{{ $target.Permalink }}">{{- $name -}}</a></li>
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}
+</ul>
+{{- end -}}

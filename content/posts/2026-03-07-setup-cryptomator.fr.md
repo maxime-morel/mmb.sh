@@ -3,6 +3,7 @@ title: "De VeraCrypt à Cryptomator : vers un stockage chiffré dans le cloud"
 date: 2026-03-07
 lastmod: 2026-03-08
 draft: false
+translationKey: "setup-cryptomator"
 
 slug: "cryptomator-stockage-chiffre-cloud"
 aliases:
