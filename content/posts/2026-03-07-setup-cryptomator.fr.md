@@ -401,8 +401,25 @@ if ! flock -n 9; then
   exit 0
 fi
 
+HEARTBEAT_PID=""
+PARENT_PID="${BASHPID:-$$}"
+
 touch "$SYNC_RUNNING_FILE"
-trap 'rm -f "$SYNC_RUNNING_FILE"' EXIT
+(
+  while kill -0 "$PARENT_PID" 2>/dev/null; do
+    touch "$SYNC_RUNNING_FILE" 2>/dev/null || true
+    sleep 30
+  done
+) &
+HEARTBEAT_PID="$!"
+
+cleanup() {
+  if [ -n "$HEARTBEAT_PID" ]; then
+    kill "$HEARTBEAT_PID" 2>/dev/null || true
+  fi
+  rm -f "$SYNC_RUNNING_FILE"
+}
+trap cleanup EXIT INT TERM
 
 # Une sync démarre : l'ancien debounce n'a plus de sens.
 rm -f "$CHANGE_DEBOUNCE_UNTIL"
@@ -509,6 +526,7 @@ LAST_LOCK_SINCE="$STATE_DIR/last_lock_since"
 CHANGE_DEBOUNCE_UNTIL="$STATE_DIR/change_debounce_until"
 PENDING_FILE="$STATE_DIR/pending"
 SYNC_RUNNING_FILE="$STATE_DIR/sync_running"
+SYNC_STALE_MAX_SECONDS="${SYNC_STALE_MAX_SECONDS:-1800}"
 NEXT_SYNC_REASON="$STATE_DIR/next_sync_reason"
 
 mkdir -p "$STATE_DIR"
@@ -564,6 +582,13 @@ last_lock_since="$(read_ts "$LAST_LOCK_SINCE")"
 sync_running=0
 if [ -f "$SYNC_RUNNING_FILE" ]; then
   sync_running=1
+  sync_running_mtime=$(stat -c %Y "$SYNC_RUNNING_FILE" 2>/dev/null || echo 0)
+  sync_running_age=$(( now - sync_running_mtime ))
+  if [ "$sync_running_age" -gt "$SYNC_STALE_MAX_SECONDS" ]; then
+    rm -f "$SYNC_RUNNING_FILE"
+    sync_running=0
+    log "stale sync_running removed: age=${sync_running_age}s (threshold=${SYNC_STALE_MAX_SECONDS}s)"
+  fi
 fi
 
 run_sync() {
