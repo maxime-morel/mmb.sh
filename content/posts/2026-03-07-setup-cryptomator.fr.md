@@ -838,8 +838,9 @@ Fichier :
 Description=Run Cryptomator sync agent every minute
 
 [Timer]
-OnBootSec=1min
-OnUnitInactiveSec=1min
+Unit=cryptomator-sync-agent.service
+OnStartupSec=1min
+OnUnitActiveSec=1min
 AccuracySec=10s
 Persistent=true
 
