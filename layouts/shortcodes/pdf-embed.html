@@ -1,0 +1,23 @@
+{{- $src := .Get "src" | relURL -}}
+{{- $title := .Get "title" | default "PDF" -}}
+{{- $label := .Get "label" | default "Download the PDF" -}}
+{{- $fallback := .Get "fallback" | default "Your browser cannot display this PDF inline." -}}
+<figure class="pdf-embed">
+  <div class="pdf-embed__frame">
+    <iframe src="{{ $src }}" title="{{ $title }}" loading="lazy"></iframe>
+  </div>
+  <div class="pdf-embed__fallback">
+    <p class="pdf-embed__fallback-text">{{ $fallback }}</p>
+  </div>
+  <div class="pdf-embed__actions">
+    <a class="pdf-embed__button" href="{{ $src }}" download>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>{{ $label }}</span>
+    </a>
+  </div>
+</figure>
