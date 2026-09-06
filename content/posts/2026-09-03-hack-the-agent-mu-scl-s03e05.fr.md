@@ -1,7 +1,7 @@
 ---
 title: "Hack the Agent : de l'injection de prompt à la compromission système (MU.SCL S03E05)"
 date: 2026-09-03
-lastmod: 2026-09-03
+lastmod: 2026-09-06
 draft: false
 translationKey: "hack-the-agent-mu-scl-s03e05"
 
@@ -69,7 +69,7 @@ Le scénario : **GridOps**, un fournisseur d'électricité mauricien fictif deve
 
 Les clients disposent d'un assistant sur leur portail. Les opérateurs en ont un autre dans leur back-office. Le support utilise également un chatbot. Et ces agents ne se contentent pas de répondre à des questions : ils ont accès à des outils applicatifs capables, entre autres, d'approuver un programme d'export solaire, d'isoler une zone de distribution, de lire des fichiers de diagnostic ou d'intégrer les relevés d'export d'un compteur communicant dans la facturation.
 
-Le lab tourne sur Frappe et Docker, avec un `Qwen3-235B-A22B-Instruct-2507` hébergé pour le modèle.
+Le lab tourne sur Frappe et Docker, avec un `Qwen3-235B-A22B-Instruct-2507` hébergé pour le modèle. Le code source complet est désormais [publié sur GitHub](https://github.com/maxime-morel/gridops-demo).
 
 Le point important, c'est que ces agents sont de vrais utilisateurs de l'application, avec leurs propres identifiants API. Lorsqu'un agent appelle un outil, il ne contourne pas nécessairement l'authentification : du point de vue de l'application, la requête peut parfaitement provenir d'un utilisateur légitime et correctement authentifié.
 
@@ -116,6 +116,14 @@ src="/files/hack-the-agent-mu-scl-s03e05.pdf"
 title="Hack the Agent - From Prompt Injection to System Compromise - MU.SCL S03E05"
 label="Télécharger les slides (PDF, 2,8 Mo)"
 fallback="Votre navigateur n'affichera pas le PDF directement ici (c'est courant sur mobile). Utilisez le bouton ci-dessous pour ouvrir le deck de 33 slides." >}}
+
+## Le lab est open source
+
+J'ai publié le code de la démo : [**maxime-morel/gridops-demo**](https://github.com/maxime-morel/gridops-demo).
+
+Il s'agit de l'intégralité du lab GridOps avec l'application Frappe, le service agent, les quatre chaînes d'attaque et les documents (pdf) d'exemple empoisonnés utilisés pour l'injection via le RAG. Le lab tourne avec Docker Compose et nécessite une clé d'API DeepInfra (pour l'inférence) ainsi qu'Ollama sur l'hôte, qui fournit les embeddings locaux du RAG. On lance `make bootstrap` et le portail est accessible sur `localhost:8080`.
+
+Le dépôt est **volontairement vulnérable**. C'est un lab destiné à reproduire les chaînes de la présentation, et non pas à exposer sur le réseau ou à publier sur une prod :)
 
 ## Les coulisses : construire le lab
 

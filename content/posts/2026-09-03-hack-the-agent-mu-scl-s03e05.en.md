@@ -1,7 +1,7 @@
 ---
 title: "Hack the Agent: From Prompt Injection to System Compromise (MU.SCL S03E05)"
 date: 2026-09-03
-lastmod: 2026-09-03
+lastmod: 2026-09-06
 draft: false
 translationKey: "hack-the-agent-mu-scl-s03e05"
 
@@ -69,7 +69,7 @@ The premise was **GridOps**, a fictional Mauritian electricity provider that has
 
 Customers have an assistant in their portal. Operators have another one in the back office. Support has a chatbot. Those agents can call application tools that approve a solar export program, isolate a distribution zone, read diagnostic files, or reconcile a smart meter's export reading into billing.
 
-The lab runs on Frappe and Docker, with a hosted `Qwen3-235B-A22B-Instruct-2507` as the model.
+The lab runs on Frappe and Docker, with a hosted `Qwen3-235B-A22B-Instruct-2507` as the model. The full source is [published on GitHub](https://github.com/maxime-morel/gridops-demo).
 
 The important bit is that the agents are application users in their own right, with their own API credentials. When an agent invokes a tool, it is not necessarily bypassing authentication. The application may see a perfectly legitimate, authenticated caller.
 
@@ -116,6 +116,14 @@ src="/files/hack-the-agent-mu-scl-s03e05.pdf"
 title="Hack the Agent - From Prompt Injection to System Compromise - MU.SCL S03E05"
 label="Download the slides (PDF, 2.8 MB)"
 fallback="Your browser will not display the PDF inline here (this is common on mobile). Use the download button below to open the 33-slide deck." >}}
+
+## The lab is open source
+
+I have published the demo code: [**maxime-morel/gridops-demo**](https://github.com/maxime-morel/gridops-demo).
+
+It is the full GridOps lab — the Frappe application, the agent service, the four attack chains, and the poisoned sample PDFs used for the RAG injection. It runs under Docker Compose and needs a DeepInfra API key (for inference) plus Ollama on the host, which provides the local embeddings for RAG. Run `make bootstrap` and the portal comes up on `localhost:8080`.
+
+The repository is **deliberately insecure**. It is a lab for reproducing the chains from the talk, not something to put on a network or anywhere near production. :)
 
 ## Behind the scenes: building the lab
 
